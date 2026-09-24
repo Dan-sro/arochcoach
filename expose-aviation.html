@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviation — My Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;600;800&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--sky:#38bdf8;--sky-light:#bae6fd;--gold:#fbbf24;--night:#050b1e}
+  body{
+    font-family:'Outfit',system-ui,sans-serif;color:#fff;height:100vh;overflow:hidden;
+    background:linear-gradient(180deg,#020617 0%,#0c1a3a 35%,#155e8a 70%,#38bdf8 100%);
+  }
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+    box-shadow:inset 0 0 180px rgba(0,0,0,.75);border:10px solid transparent;
+    border-image:linear-gradient(135deg,#0c1a3a,#bae6fd,#0c1a3a,#fff,#0c1a3a) 1}
+  .stars{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:radial-gradient(1.5px 1.5px at 20% 20%,#fff,transparent),radial-gradient(1px 1px at 70% 15%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 10%,#fff,transparent),radial-gradient(1px 1px at 90% 30%,#fff,transparent),radial-gradient(1px 1px at 10% 35%,#fff,transparent),radial-gradient(1.5px 1.5px at 55% 25%,#fff,transparent),radial-gradient(1px 1px at 80% 8%,#fff,transparent);opacity:.7}
+  .sun{position:fixed;left:50%;top:58%;transform:translate(-50%,-50%);width:55vmax;height:55vmax;border-radius:50%;z-index:0;pointer-events:none;
+    background:radial-gradient(circle,#fef3c7 0%,#fbbf24 22%,rgba(251,191,36,.35) 40%,transparent 65%);opacity:.85}
+  canvas#clouds{position:fixed;inset:0;z-index:1;pointer-events:none}
+  .topbar{position:fixed;top:10px;left:10px;right:10px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:12px 22px}
+  .logo{font-family:'Cinzel',serif;font-weight:900;letter-spacing:3px;font-size:15px;color:#e0f2fe;display:flex;align-items:center;gap:10px;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+  .logo i{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(180deg,#e0f2fe,#38bdf8);border:2px solid #fff;font-style:normal;font-size:19px;animation:floatY 3s ease-in-out infinite}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .btn{cursor:pointer;border:1px solid rgba(255,255,255,.6);background:linear-gradient(180deg,#fff,#bae6fd);color:#0c1a3a;font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:9px 16px;border-radius:100px;transition:.25s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(56,189,248,.6)}
+  .progress{position:fixed;top:0;left:0;right:0;height:5px;background:rgba(255,255,255,.15);z-index:30}
+  .progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#0ea5e9,#fff,#fbbf24);box-shadow:0 0 15px #38bdf8;transition:width .6s cubic-bezier(.22,1,.36,1)}
+  .viewport{position:relative;z-index:2;height:100vh;width:100vw;overflow:hidden}
+  .track{display:flex;height:100%;transition:transform .8s cubic-bezier(.22,1,.36,1)}
+  .slide{min-width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;padding:90px 80px 110px}
+  .card{width:min(1080px,92vw);min-height:58vh;background:linear-gradient(180deg,rgba(8,18,45,.88),rgba(3,8,25,.94));border:1px solid rgba(186,230,253,.45);border-radius:28px;padding:52px 56px;position:relative;overflow:hidden;box-shadow:0 30px 100px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.2);display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center;backdrop-filter:blur(8px)}
+  .card::before{content:"";position:absolute;inset:12px;border:1px dashed rgba(186,230,253,.35);border-radius:20px;pointer-events:none}
+  .card::after{content:"";position:absolute;top:-60%;left:-20%;width:55%;height:220%;transform:rotate(20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:shine 5s ease-in-out infinite}
+  @keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+  .slide.active .card{animation:cardIn .8s cubic-bezier(.22,1,.36,1) both}
+  @keyframes cardIn{from{opacity:0;transform:translateX(80px) scale(.97)}to{opacity:1;transform:none}}
+  .kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#082f49;background:linear-gradient(180deg,#fff,#7dd3fc);padding:7px 14px;border-radius:100px;margin-bottom:18px;box-shadow:0 4px 20px rgba(56,189,248,.5)}
+  h1,h2{font-family:'Cinzel',serif;font-weight:900;line-height:1;font-size:clamp(38px,5.2vw,68px);margin-bottom:16px}
+  h1 .sky,h2 .sky{background:linear-gradient(180deg,#fff 0%,#bae6fd 40%,#38bdf8 75%,#fbbf24 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 12px rgba(56,189,248,.45))}
+  .sub{font-size:clamp(17px,1.9vw,22px);line-height:1.65;color:#eef6ff;font-weight:300;max-width:560px}
+  .sub b{color:#fde68a;font-weight:600}
+  .tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .tag{font-size:12px;font-weight:700;letter-spacing:1px;padding:8px 13px;border-radius:100px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08)}
+  .tag.hot{background:linear-gradient(180deg,#38bdf8,#0369a1);border-color:#bae6fd;box-shadow:0 4px 20px rgba(56,189,248,.5)}
+  .visual{display:flex;align-items:center;justify-content:center;position:relative;min-height:320px}
+  .cover{grid-template-columns:1fr;text-align:center;justify-items:center}
+  .cover .sub{max-width:680px;margin:0 auto}
+  /* plane volant */
+  .runway-scene{width:100%;text-align:center}
+  .plane-big{font-size:110px;filter:drop-shadow(0 15px 30px rgba(0,0,0,.6));display:inline-block;animation:fly 4.5s ease-in-out infinite}
+  @keyframes fly{0%,100%{transform:translate(-18px,8px) rotate(-4deg)}50%{transform:translate(18px,-12px) rotate(3deg)}}
+  .trail{height:4px;margin:6px auto 0;width:72%;border-radius:100px;background:linear-gradient(90deg,transparent,#fff,#fbbf24,transparent);filter:blur(.5px);animation:trailPulse 2.2s ease-in-out infinite}
+  @keyframes trailPulse{0%,100%{opacity:.5;transform:scaleX(.92)}50%{opacity:1;transform:scaleX(1)}}
+  .cloud-row{font-size:44px;letter-spacing:12px;opacity:.95;animation:drift 6s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translateX(-12px)}50%{transform:translateX(12px)}}
+  .date-badge{font-family:'Cinzel',serif;font-size:74px;font-weight:900;color:transparent;-webkit-text-stroke:2px #fde68a;line-height:1;text-shadow:0 0 40px rgba(251,191,36,.4)}
+  .types{display:flex;gap:14px;width:100%}
+  .type{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(186,230,253,.3);border-radius:18px;padding:20px 14px;text-align:center;transition:.3s}
+  .type:hover{transform:translateY(-6px);border-color:#fff;box-shadow:0 15px 40px rgba(56,189,248,.35)}
+  .type span{font-size:46px;display:block}
+  .type strong{display:block;margin-top:10px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:#bae6fd}
+  .type p{font-size:13.5px;color:#dbeafe;margin-top:8px;line-height:1.5}
+  .slide.active .type{animation:pop .6s cubic-bezier(.22,1,.36,1) both}
+  .slide.active .type:nth-child(2){animation-delay:.12s}.slide.active .type:nth-child(3){animation-delay:.24s}
+  @keyframes pop{from{opacity:0;transform:translateY(40px) scale(.95)}}
+  .vs{display:flex;gap:14px;width:100%;margin-top:6px}
+  .vsbox{flex:1;border-radius:18px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,.2)}
+  .vsbox.old{background:rgba(0,0,0,.45)}
+  .vsbox.new{background:linear-gradient(180deg,rgba(56,189,248,.35),rgba(56,189,248,.12));border-color:#7dd3fc;box-shadow:0 0 35px rgba(56,189,248,.35)}
+  .vsbox span{font-size:48px}.vsbox strong{display:block;margin-top:8px;letter-spacing:1px;font-size:13px;text-transform:uppercase}
+  .vsbox p{font-size:14px;margin-top:6px;color:#e0f2fe}
+  .radar{width:230px;height:230px;border-radius:50%;border:3px solid rgba(186,230,253,.7);position:relative;background:radial-gradient(circle,rgba(56,189,248,.25) 0%,rgba(2,6,23,.9) 70%);box-shadow:0 0 50px rgba(56,189,248,.45);overflow:hidden}
+  .radar::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(125,211,252,.9),transparent 22%);animation:spin 2.6s linear infinite}
+  .radar::after{content:"✈";position:absolute;top:32%;left:58%;font-size:30px;transform:rotate(40deg);filter:drop-shadow(0 0 8px #fff)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .globe{font-size:110px;animation:floatY 3.5s ease-in-out infinite;filter:drop-shadow(0 15px 30px rgba(0,0,0,.6))}
+  .nav{position:fixed;bottom:26px;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:center;gap:18px}
+  .arrow{width:58px;height:58px;border-radius:50%;cursor:pointer;font-size:24px;color:#082f49;background:linear-gradient(180deg,#fff,#7dd3fc);border:2px solid #fff;box-shadow:0 8px 30px rgba(56,189,248,.55);transition:.25s;display:grid;place-items:center}
+  .arrow:hover{transform:scale(1.1)}.arrow:active{transform:scale(.95)}
+  .arrow:disabled{opacity:.25;filter:grayscale(1);cursor:default;transform:none}
+  .dots{display:flex;gap:9px;background:rgba(0,0,0,.5);padding:12px 18px;border-radius:100px;border:1px solid rgba(186,230,253,.35)}
+  .dot{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:.3s;border:none}
+  .dot.active{background:#fff;box-shadow:0 0 12px #38bdf8;transform:scale(1.35)}
+  .counter{font-size:13px;font-weight:800;letter-spacing:2px;color:#e0f2fe;background:rgba(0,0,0,.5);padding:12px 16px;border-radius:100px;border:1px solid rgba(186,230,253,.35)}
+  .confetti{position:fixed;top:-20px;z-index:40;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+  @media(max-width:900px){
+    .slide{padding:80px 14px 130px}
+    .card{grid-template-columns:1fr;padding:28px 22px;text-align:center;justify-items:center;max-height:74vh;overflow:auto}
+    .types{flex-direction:column}.plane-big{font-size:80px}.date-badge{font-size:56px}
+    .topbar{padding:8px 10px}.radar{width:180px;height:180px}
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div><div class="sun"></div><canvas id="clouds"></canvas>
+<div class="progress"><span id="bar"></span></div>
+<div class="topbar">
+  <div class="logo"><i>✈</i> AVIATION</div>
+  <button class="btn" onclick="document.documentElement.requestFullscreen()">⛶ Full screen</button>
+</div>
+<div class="viewport"><div class="track" id="track">
+
+  <section class="slide"><div class="card cover"><div>
+    <div class="kicker">My presentation</div>
+    <h1><span class="sky">AVIATION</span></h1>
+    <p class="sub">Today, I'm going to talk about <b>aviation</b>. I chose this subject because I've always been <b>fascinated by planes</b> and by the fact that they can fly.</p>
+    <div class="runway-scene" style="margin-top:16px"><div class="plane-big">✈️</div><div class="trail"></div><div class="cloud-row">☁️ ☁️ ☁️</div></div>
+  </div></div></section>
+
+  <section class="slide"><div class="card"><div>
+    <div class="kicker">History</div>
+    <h2>The first flight <span class="sky">1903</span></h2>
+    <p class="sub">First, aviation really began in the <b>early 20th century</b>. For example, the <b>Wright brothers</b> made the first powered flight in <b>1903</b>.</p>
+    <div class="tags"><span class="tag hot">✈ Wright brothers</span><span class="tag">⚙ First engine</span><span class="tag">🌬 First flight</span></div>
+  </div>
+  <div class="visual" style="flex-direction:column;gap:12px"><div class="date-badge">1903</div><div class="plane-big" style="font-size:84px">🛩️</div><div class="cloud-row" style="font-size:34px">☁️ ☁️</div></div>
+  </div></section>
+
+  <section class="slide"><div class="card" style="grid-template-columns:1fr"><div>
+    <div class="kicker">The aircraft</div>
+    <h2 style="text-align:center">Three types <span class="sky">of planes</span></h2>
+    <p class="sub" style="text-align:center;max-width:700px;margin:0 auto">Then, there are <b>different types of aircraft</b>: airliners to transport passengers, military planes, and cargo planes to transport goods.</p>
+    <div class="types" style="margin-top:20px">
+      <div class="type"><span>🛫</span><strong>Airliners</strong><p>Transport passengers around the world</p></div>
+      <div class="type"><span>🛩️</span><strong>Military</strong><p>Defense, speed and missions</p></div>
+      <div class="type"><span>📦</span><strong>Cargo</strong><p>Transport goods everywhere</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide"><div class="card"><div>
+    <div class="kicker">A revolution</div>
+    <h2>Crossing the <span class="sky">Atlantic</span></h2>
+    <p class="sub">Another important point is that aviation has <b>changed the world enormously</b>. For example, today you can cross the Atlantic in <b>a few hours</b>, whereas before it took <b>several weeks by boat</b>.</p>
+  </div>
+  <div class="visual" style="flex-direction:column;gap:12px;width:100%">
+    <div class="vs">
+      <div class="vsbox old"><span>🚢</span><strong>Before</strong><p>Several weeks by boat</p></div>
+      <div class="vsbox new"><span>✈️</span><strong>Today</strong><p>A few hours by plane</p></div>
+    </div>
+    <div class="trail" style="width:100%"></div>
+  </div>
+  </div></section>
+
+  <section class="slide"><div class="card"><div>
+    <div class="kicker">My opinion</div>
+    <h2>An <span class="sky">incredible</span> invention</h2>
+    <p class="sub">In my opinion, aviation is an <b>incredible invention</b> because it has brought people around the world <b>closer together</b>. What I find interesting is the <b>technology</b> that allows such a heavy machine to fly.</p>
+  </div>
+  <div class="visual" style="flex-direction:column;gap:10px"><div class="radar"></div><div class="tags"><span class="tag hot">🌍 Closer world</span><span class="tag">⚙ Technology</span></div></div>
+  </div></section>
+
+  <section class="slide"><div class="card cover"><div>
+    <div class="kicker">Conclusion</div>
+    <h2>Thank you <span class="sky">for listening</span></h2>
+    <p class="sub">To conclude, aviation has <b>revolutionized</b> the way we travel and see the world. That's why I chose this subject.</p>
+    <div class="runway-scene" style="margin-top:16px"><div class="globe">🌍 ✈️</div><div class="cloud-row">☁️ ☁️ ☁️</div></div>
+  </div></div></section>
+
+</div></div>
+<div class="nav">
+  <button class="arrow" id="prev">←</button>
+  <div class="dots" id="dots"></div>
+  <div class="counter"><span id="num">1</span> / 6</div>
+  <button class="arrow" id="next">→</button>
+</div>
+<script>
+const track=document.getElementById('track'),slides=[...document.querySelectorAll('.slide')],
+bar=document.getElementById('bar'),num=document.getElementById('num'),
+prev=document.getElementById('prev'),next=document.getElementById('next'),dotsBox=document.getElementById('dots');
+let i=0;
+slides.forEach((_,k)=>{const d=document.createElement('button');d.className='dot'+(k===0?' active':'');d.onclick=()=>go(k);dotsBox.appendChild(d)});
+const dots=[...dotsBox.children];
+function go(k){i=Math.max(0,Math.min(slides.length-1,k));track.style.transform=`translateX(-${i*100}vw)`;
+slides.forEach((s,j)=>s.classList.toggle('active',j===i));dots.forEach((d,j)=>d.classList.toggle('active',j===i));
+bar.style.width=((i+1)/slides.length*100)+'%';num.textContent=i+1;prev.disabled=i===0;next.disabled=i===slides.length-1;
+if(i===slides.length-1)rain()}
+prev.onclick=()=>go(i-1);next.onclick=()=>go(i+1);
+document.addEventListener('keydown',e=>{
+if(e.key==='ArrowRight'||e.key===' '||e.key==='Enter')go(i+1);
+if(e.key==='ArrowLeft')go(i-1);
+if(e.key.toLowerCase()==='f')document.documentElement.requestFullscreen()});
+let x0=null;addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(dx<-50)go(i+1);if(dx>50)go(i-1);x0=null},{passive:true});
+go(0);
+const cv=document.getElementById('clouds'),ctx=cv.getContext('2d');let P=[];
+function size(){cv.width=innerWidth;cv.height=innerHeight}size();addEventListener('resize',size);
+for(let k=0;k<26;k++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight*.8,r:18+Math.random()*46,s:.25+Math.random()*.6,o:.08+Math.random()*.14});
+(function loop(){ctx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.x+=p.s;if(p.x-100>cv.width){p.x=-120;p.y=Math.random()*innerHeight*.8}
+ctx.globalAlpha=p.o;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.arc(p.x+p.r*.9,p.y-12,p.r*.7,0,7);ctx.arc(p.x-p.r*.9,p.y-8,p.r*.65,0,7);ctx.fill()});ctx.globalAlpha=1;requestAnimationFrame(loop)})();
+function rain(){const sym=['✈️','☁️','⭐','💙','🤍'];
+for(let k=0;k<50;k++){const s=document.createElement('div');s.className='confetti';s.textContent=sym[Math.floor(Math.random()*sym.length)];
+s.style.left=Math.random()*100+'vw';s.style.fontSize=(14+Math.random()*22)+'px';
+s.style.animationDuration=(2+Math.random()*2)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),4500)}}
+</script>
+</body>
+</html>
